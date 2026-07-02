@@ -5,34 +5,10 @@ const sidebar = document.getElementById("sidebar");
 const hamburger = document.getElementById("hamburger");
 
 const pages = {
-  dashboard: {
-    title: "Dashboard",
-    html: `
-      <div class="grid">
-        <div class="card">
-          <h3>Total Guest</h3>
-          <div class="value">0</div>
-        </div>
-        <div class="card">
-          <h3>Checked In</h3>
-          <div class="value">0</div>
-        </div>
-        <div class="card">
-          <h3>Waiting</h3>
-          <div class="value">0</div>
-        </div>
-        <div class="card">
-          <h3>Attendance</h3>
-          <div class="value">0%</div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <h3>PERKABEM Event System V2</h3>
-        <p>Foundation layout sudah aktif. Module database akan dibuat di milestone berikutnya.</p>
-      </div>
-    `
-  },
+dashboard: {
+  title: "Dashboard",
+  html: renderDashboardPage()
+},
 
   guest: {
     title: "Guest",
