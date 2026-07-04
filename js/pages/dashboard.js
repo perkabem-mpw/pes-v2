@@ -1,94 +1,50 @@
-/**
- * =====================================================
- * DASHBOARD MODULE
- * PES V2
- * =====================================================
- */
+function renderDashboardPage(){
+  return `
+    <div class="grid">
+      <div class="card">
+        <h3>Total Guest</h3>
+        <div class="value" id="totalGuest">0</div>
+      </div>
 
-function dashboardRouter(request) {
-  const action = (request.action || "").toLowerCase();
+      <div class="card">
+        <h3>Checked In</h3>
+        <div class="value" id="checkedIn">0</div>
+      </div>
 
-  switch (action) {
-    case "summary":
-      return dashboardSummary(request);
+      <div class="card">
+        <h3>Waiting</h3>
+        <div class="value" id="waiting">0</div>
+      </div>
 
-    case "recent":
-      return dashboardRecent(request);
+      <div class="card">
+        <h3>Attendance</h3>
+        <div class="value" id="attendance">0%</div>
+      </div>
+    </div>
 
-    default:
-      return errorResponse("Dashboard Action Not Found", 404);
-  }
+    <div class="panel">
+      <h3>Dashboard Live</h3>
+      <p>Connected to PES V2 API.</p>
+    </div>
+  `;
 }
 
-function dashboardSummary(request) {
-  const eventId = (request.eventId || "").trim();
-
-  if (!eventId) {
-    return errorResponse("EventID Required", 400);
-  }
-
-  const data = getGuestRows();
-
-  let totalGuest = 0;
-  let checkedIn = 0;
-  let waiting = 0;
-
-  data.rows.forEach(function(row) {
-    const guest = rowToObject(data.headers, row);
-
-    if (String(guest.EventID) === String(eventId)) {
-      totalGuest++;
-
-      if (guest.CheckInStatus === STATUS.CHECKED_IN) {
-        checkedIn++;
-      } else {
-        waiting++;
-      }
+async function loadDashboard(){
+  const result = await api(
+    "dashboard",
+    "summary",
+    {
+      eventId: CONFIG.EVENT_ID
     }
-  });
+  );
 
-  const attendancePercent = totalGuest === 0
-    ? 0
-    : Math.round((checkedIn / totalGuest) * 100);
-
-  return success({
-    EventID: eventId,
-    TotalGuest: totalGuest,
-    CheckedIn: checkedIn,
-    Waiting: waiting,
-    AttendancePercent: attendancePercent
-  }, "Dashboard Summary");
-}
-
-function dashboardRecent(request) {
-  const eventId = (request.eventId || "").trim();
-  const limit = Number(request.limit || 10);
-
-  if (!eventId) {
-    return errorResponse("EventID Required", 400);
+  if(!result.success){
+    console.error(result);
+    return;
   }
 
-  const sh = sheet(SHEETS.CHECKIN);
-  const values = sh.getDataRange().getValues();
-
-  if (values.length <= 1) {
-    return success([], "No Recent Check-In");
-  }
-
-  const headers = values[0];
-
-  const result = values
-    .slice(1)
-    .map(function(row) {
-      return rowToObject(headers, row);
-    })
-    .filter(function(item) {
-      return String(item.EventID) === String(eventId);
-    })
-    .sort(function(a, b) {
-      return new Date(b.CheckInTime) - new Date(a.CheckInTime);
-    })
-    .slice(0, limit);
-
-  return success(result, "Recent Check-In");
+  document.getElementById("totalGuest").innerText = result.data.TotalGuest;
+  document.getElementById("checkedIn").innerText = result.data.CheckedIn;
+  document.getElementById("waiting").innerText = result.data.Waiting;
+  document.getElementById("attendance").innerText = result.data.AttendancePercent + "%";
 }
