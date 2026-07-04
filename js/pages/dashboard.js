@@ -1,30 +1,19 @@
-function renderDashboardPage(){
-  return `
-    <div class="grid">
-      <div class="card">
-        <h3>Total Guest</h3>
-        <div class="value">0</div>
-      </div>
+async function loadDashboard(){
 
-      <div class="card">
-        <h3>Checked In</h3>
-        <div class="value">0</div>
-      </div>
+    const result = await api(
 
-      <div class="card">
-        <h3>Waiting</h3>
-        <div class="value">0</div>
-      </div>
+        "dashboard",
 
-      <div class="card">
-        <h3>Attendance</h3>
-        <div class="value">0%</div>
-      </div>
-    </div>
+        "summary",
 
-    <div class="panel">
-      <h3>PERKABEM Event System V2</h3>
-      <p>Dashboard foundation aktif. Data real akan masuk setelah API milestone.</p>
-    </div>
-  `;
+        {
+
+            eventId:CONFIG.EVENT_ID
+
+        }
+
+    );
+
+    console.log(result);
+
 }
